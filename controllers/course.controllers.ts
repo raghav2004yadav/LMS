@@ -11,6 +11,7 @@ import mongoose from "mongoose";
 import path from "path";
 import ejs from "ejs";
 import sendMail from "../utils/sendMail";
+import { title } from "process";
 
 //upload course
 export const uploadCourse = CatchAsyncError(
@@ -327,4 +328,115 @@ export const addAnswer=CatchAsyncError(async(req:Request,res:Response,next:NextF
     return next(new ErrorHandler(error.message, 500));
   }
 
+});
+
+
+//add reveiw in course 
+
+interface IAddReviewData{
+  review:string;
+  courseId:string;
+  rating:string;
+  userId:string;
+}
+
+
+
+export const addReview=CatchAsyncError(async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    const userCourseList=req.user?.courses;
+
+    const courseId=req.params.id;
+
+    //check if courseId already exists in userCourseList based on  _id
+    const courseExists=userCourseList?.some((course:any)=>course._id.toString()===courseId.toString());
+
+    if(!courseExists){
+      return next(new ErrorHandler("You are not eligible to access this course ",400));
+    }
+
+    const course=await CourseModel.findById(courseId);
+    const {review,rating}=req.body as IAddReviewData;
+
+    const reviewData:any={
+      user:req.user,
+      rating,
+      comment:review,
+    }
+
+    course?.reviews.push(reviewData);
+    let avg=0;
+    course?.reviews.forEach((rev:any)=>{
+      avg+=rev.rating;
+    });
+
+    if(course){
+      //one example we have w reviews one is 5 another one is 4 so math working like this 9/2=4.5 ratings
+      course.ratings=avg/course.reviews.length;
+    }
+
+    await course?.save();
+
+
+    //create notification 
+    const notification={
+      title:"New Review Received",
+      message:`${req.user?.name} has given a review in ${course?.name}`,
+    };
+
+    res.status(200).json({
+      success:true,
+      course,
+
+    });
+  }
+  catch(error:any){
+    return next(new ErrorHandler(error.message,500));
+  }
+})
+
+
+
+//add reply in review
+
+interface IAddReviewData{
+  comment:string;
+  courseId:string;
+  reviewId:string;
+
+}
+export const addReplyToReview=CatchAsyncError(async(req:Request,res:Response,next:NextFunction)=>{
+try{
+  const {comment,courseId,reviewId}=req.body as IAddReviewData;
+  const course=await CourseModel.findById(courseId);
+  if(!course){
+    return next(new ErrorHandler("Course not found ",400));
+
+  }
+  const review=course?.reviews?.find((rev:any)=>rev.id.toString()===reviewId);
+  if(!review){
+    return next(new ErrorHandler("Review not found",404));
+
+  }
+
+  const replyData:any={
+    user:req.user,
+    comment,
+  };
+
+  if(!review.commentReplies){
+    review.commentReplies=[];
+
+  }
+
+  review.commentReplies?.push(replyData);
+
+  await course?.save();
+  res.status(200).json({
+    success:true,
+    course,
+  });
+}catch(error:any){
+  return next(new ErrorHandler(error.message,500));
+}
 })
