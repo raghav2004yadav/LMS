@@ -56,4 +56,10 @@ courseRouter.put("/add-review/:id", isAuthneticated,addReview);
 
 courseRouter.put("/add-review-reply", isAuthneticated,authorizeRoles("admin"),addReplyToReview);
 
+
+
+//get all course with notification , orders and users
+
+courseRouter.put("/get-courses", isAuthneticated,authorizeRoles("admin"),getAllCourse);
+
 export default courseRouter;

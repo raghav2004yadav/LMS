@@ -23,9 +23,12 @@ import {
   updateUserInfo,
   updatePassword,
   updateProfilePicture,
+  getAllUsers,
+  updateUserRole,
 } from "../controllers/user.controller";
 
 import { authorizeRoles, isAuthneticated } from "../middleware/auth"; // Fixed typo here
+import { updateUserRoleService } from "../services/user.service";
 
 const userRouter = express.Router();
 
@@ -52,4 +55,12 @@ userRouter.put("/update-user-password", isAuthneticated,updatePassword);
 
 //update user profile picture or avatar 
 userRouter.put("/update-user-avatar", isAuthneticated,updateProfilePicture);
+
+
+userRouter.get("/get-users", isAuthneticated,authorizeRoles("admin"),getAllUsers);
+
+
+
+
+userRouter.put("/update-user", isAuthneticated,authorizeRoles("admin"),updateUserRole);
 export default userRouter;

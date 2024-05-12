@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
 import cloudinary from "cloudinary";
-import { createCourse } from "../services/course.services";
+import { createCourse, getAllCoursesService } from "../services/course.services";
 import { url } from "inspector";
 import CourseModel from "../modals/course.model";
 import { redis } from "../utils/redis";
@@ -12,6 +12,8 @@ import path from "path";
 import ejs from "ejs";
 import sendMail from "../utils/sendMail";
 import { title } from "process";
+import notificationModel from "../modals/notificationModel";
+import { getAllUsersService } from "../services/user.service";
 
 //upload course
 export const uploadCourse = CatchAsyncError(
@@ -228,6 +230,16 @@ export const addQuestion=CatchAsyncError(async(req:Request,res:Response,next:Nex
     courseContent.questions.push(newQuestion);
 
 
+
+    //when user is asking questions create a notification admin dashboard
+
+    await notificationModel.create({
+      user: req.user?._id,
+      title: "New Question Received",
+      message: `You have a new Question in  ${courseContent.title}`,
+  });
+
+
     //save the update course
     await course?.save();
 
@@ -296,7 +308,11 @@ export const addAnswer=CatchAsyncError(async(req:Request,res:Response,next:NextF
     if(req.user?._id===question.user._id){
       //create a notification
 
-
+      await notificationModel.create({
+        user: req.user?._id,
+        title: "New Question Reply Received",
+        message: `You have a new Question Reply in  ${courseContent.title}`,
+    });
     }
     else{
       const data={
@@ -440,3 +456,19 @@ try{
   return next(new ErrorHandler(error.message,500));
 }
 })
+
+
+
+//get all courses --only for admin
+
+export const getAllUsers=CatchAsyncError(async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    getAllCoursesService(res);
+
+    
+  }
+  catch(error:any){
+    return next(new ErrorHandler(error.message,400));
+  }
+});
+
