@@ -4,6 +4,7 @@ import {
     addQuestion,
   addReplyToReview,
   addReview,
+  deleteCourse,
   editCourse,
   getAllCourse,
   getCourseByUser,
@@ -61,5 +62,9 @@ courseRouter.put("/add-review-reply", isAuthneticated,authorizeRoles("admin"),ad
 //get all course with notification , orders and users
 
 courseRouter.put("/get-courses", isAuthneticated,authorizeRoles("admin"),getAllCourse);
+
+
+//delete course delete routes
+courseRouter.delete("/delete-course/:id", isAuthneticated,authorizeRoles("admin"),deleteCourse);
 
 export default courseRouter;

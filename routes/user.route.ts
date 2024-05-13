@@ -25,6 +25,7 @@ import {
   updateProfilePicture,
   getAllUsers,
   updateUserRole,
+  deleteUser,
 } from "../controllers/user.controller";
 
 import { authorizeRoles, isAuthneticated } from "../middleware/auth"; // Fixed typo here
@@ -63,4 +64,8 @@ userRouter.get("/get-users", isAuthneticated,authorizeRoles("admin"),getAllUsers
 
 
 userRouter.put("/update-user", isAuthneticated,authorizeRoles("admin"),updateUserRole);
+
+
+//delete user routes
+userRouter.delete("/delete-user/:id", isAuthneticated,authorizeRoles("admin"),deleteUser);
 export default userRouter;

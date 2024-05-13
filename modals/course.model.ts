@@ -1,5 +1,6 @@
 import mongoose, {Document,Model,Schema} from "mongoose";
 import { IUser } from "./user_model";
+import { timeStamp } from "console";
 
 
 interface IComment extends Document{
@@ -164,7 +165,7 @@ const courseSchema= new Schema<ICourse>({
     },
 
 
-});
+},{timestamps:true});
 
 
 
