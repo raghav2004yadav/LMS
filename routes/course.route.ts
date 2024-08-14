@@ -67,4 +67,7 @@ courseRouter.put("/get-courses", isAuthneticated,authorizeRoles("admin"),getAllC
 //delete course delete routes
 courseRouter.delete("/delete-course/:id", isAuthneticated,authorizeRoles("admin"),deleteCourse);
 
+
+
+
 export default courseRouter;

@@ -236,7 +236,7 @@ export const updateAccessToken = CatchAsyncError(
         { id: user._id },
         process.env.ACCESS_TOKEN as string,
         {
-          expiresIn: "5m",
+          expiresIn: "15m",
         }
       );
 
@@ -244,7 +244,7 @@ export const updateAccessToken = CatchAsyncError(
         { id: user._id },
         process.env.REFRESH_TOKEN as string,
         {
-          expiresIn: "7d",
+          expiresIn: "10d",
         }
       );
 
@@ -269,7 +269,7 @@ export const updateAccessToken = CatchAsyncError(
 // get user info
 
 export const getUserInfo = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => { 
     try {
       const userId = req.user?._id;
       getUserById(userId, res);
